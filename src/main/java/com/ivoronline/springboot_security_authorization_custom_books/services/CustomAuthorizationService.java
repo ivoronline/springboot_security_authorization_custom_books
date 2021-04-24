@@ -9,13 +9,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class AuthenticationService {
+public class CustomAuthorizationService {
 
-  @Autowired
-  BookRepository bookRepository;
+  @Autowired BookRepository bookRepository;
 
+  //==============================================================================
+  // AUTHORIZE
+  //==============================================================================
   @Transactional
-  public boolean authenticate(Authentication authentication, Integer bookId) {
+  public boolean authorize(Authentication authentication, Integer bookId) {
 
     //GET BOOK
     Book book = bookRepository.findById(bookId).get();
@@ -23,13 +25,12 @@ public class AuthenticationService {
     //GET BOOK USERNAME
     String bookUserName = book.userName;
 
-    //GET AUTHENTICATED USERNAME
-    UserDetails user = (UserDetails) authentication.getPrincipal();
-    String authenticatedUserName = user.getUsername();
+    //GET USERNAME
+    UserDetails userDetails     = (UserDetails) authentication.getPrincipal();
+    String      enteredUsername = userDetails.getUsername();
 
     //CHECK OWNERSHIP
-    if (bookUserName.equals(authenticatedUserName)) { return true;  }
-    else                                            { return false; }
+    return bookUserName.equals(enteredUsername);
 
   }
 
